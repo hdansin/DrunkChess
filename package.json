@@ -1,0 +1,20 @@
+{
+  "name": "drunkchess-2-0",
+  "version": "1.0.0",
+  "description": "Chess where everyone but the king forgets their names",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "chess"
+  ],
+  "author": "Hunter Dansin",
+  "license": "ISC",
+  "dependencies": {
+    "chess.js": "^0.11.0",
+    "express": "^4.17.1",
+    "html": "^1.0.0",
+    "path": "^0.12.7"
+  }
+}
