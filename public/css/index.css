@@ -1,7 +1,26 @@
+body {
+  color: #ffffff;
+  background-color: #252B33;
+}
+
 .container {
   margin: 0 auto;
   width: 640px;
   height: 640px;
   display: grid;
   grid-template-columns: repeat(8, 1fr);
+}
+
+.lightSquare {
+  width: 1fr;
+  height: 1fr;
+  color: #000;
+  background-color: #F7F7F7;
+}
+
+.darkSquare {
+  width: 1fr;
+  height: 1fr;
+  color: #000;
+  background-color: #98BCF0;
 }
