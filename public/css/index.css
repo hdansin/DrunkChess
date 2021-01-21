@@ -24,3 +24,9 @@ body {
   color: #000;
   background-color: #98BCF0;
 }
+
+.piece {
+  position: absolute;
+  height: 80px;
+  width: auto;
+}
