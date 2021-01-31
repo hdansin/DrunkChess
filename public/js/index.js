@@ -102,7 +102,7 @@ function placePieces () {
     }
     // place black bishops
     else if (sq == 'c8' || sq == 'f8') {
-      id = 'b' + numb
+      id = 'z' + numb // This avoids creating the same id as square "a1"
       squareNodes[i].insertAdjacentHTML('afterbegin', '<img id="' + id +  '" class="piece" src="../assets/images/pieces/bb.svg"/>');
       numb++;
     }
@@ -130,7 +130,6 @@ function dragstart_handler (event) {
   let parentNode = event.target.parentNode;
   let piece = event.target;
   let data = event.target.id + parentNode.id;
-  piece.style.opacity = 0;
   event.dataTransfer.setData('text/plain', data);
 }
 
@@ -151,7 +150,6 @@ function drop_handler(event) {
   // Make sure the drop square is not a piece
   let dropSquare = event.target.className == "piece" ? event.target.parentNode : event.target;
   let piece = document.getElementById(data.slice(0,2));
-  piece.style.opacity = 1;
   let move = {from: '', to: '', promotion: 'q'};
   move.from = squareFrom;
   move.to = dropSquare.id;
@@ -232,7 +230,7 @@ function drop_handler(event) {
         // white 
         if (moveObj.color == 'w') {
           for (let i = 0; i < boardFen.length; i++) {
-            if (boardFen[i] == 'w') {
+            if (boardFen[i] === ' ') {
               i = boardFen.length;
             } else if (boardFen[i] == 'Q') {
               numQueens++;
@@ -245,7 +243,7 @@ function drop_handler(event) {
         } else {
           // black
           for (let i = 0; i < boardFen.length; i++) {
-            if (boardFen[i] == 'b') {
+            if (boardFen[i] === ' ') {
               i = boardFen.length;
             } else if (boardFen[i] == 'q') {
               numQueens++;
@@ -306,89 +304,76 @@ function drop_handler(event) {
     let newFen = originalFen;
     let randomPiece = randomArr[Math.floor(Math.random() * Math.floor(randomArr.length - 1))];
     let randomPiece2 = randomArr[Math.floor(Math.random() * Math.floor(randomArr.length - 1))];
-    // Choose to start at the beginning or end of the board for the sake of randomness, and make x and y
-    let beginning = Math.random() < 0.5;
 
-    if (beginning) {
-      // Start at the beginning and find the random piece
-      let x = 97; // Unicode decimal for "a"
-      let y = 8; // "8" because that is the order that the FEN string goes
-      let lastMove = chess.history({ verbose: true }).pop();
-      for (let i = 0; i < originalFen.length; i++) {
-        if (originalFen[i] == randomPiece && getPosition(x, y) !== lastMove['to']) {
-          // switch the first piece
-          let before = originalFen.slice(0, i);
-          let after = originalFen.slice(i + 1);
-          let index = i; // So we don't switch the piece we just moved
-          newFen = before + randomPiece2 + after;
-          console.log(getPosition(x,y));
-          for (let j = 0; j < originalFen.length; j++) {
-            if (originalFen[j] == randomPiece2 && j !== index) {
-              // switch the next piece
-              before = newFen.slice(0, j);
-              after = newFen.slice(j + 1);
-              newFen = before + randomPiece + after;
-              console.log("changing to: " + newFen);
-              // exit the loop
-              j = originalFen.length;
-            }
+    // Start at the beginning and find the random piece
+    let x = 97; // Unicode decimal for "a"
+    let y = 8; // "8" because that is the order that the FEN string goes
+    let square1; // Placeholders
+    let square2;
+    let lastMove = chess.history({ verbose: true }).pop();
+    for (let i = 0; i < originalFen.length; i++) {
+      console.log(y);
+      if (originalFen[i] == randomPiece && getPosition(x,y) !== lastMove['to']) {
+        // switch the first piece in chess.js
+        let before = originalFen.slice(0, i);
+        let after = originalFen.slice(i + 1);
+        let index = i; // So we don't switch the piece we just moved
+        newFen = before + randomPiece2 + after;
+        console.log(getPosition(x,y));
+        // Get the square of the first piece
+        square1 = document.getElementById(getPosition(x,y));
+        let x1 = 97;
+        let y1 = 8;
+        for (let j = 0; j < originalFen.length; j++) {
+          if (originalFen[j] == randomPiece2 && getPosition(x1,y1) !== lastMove['to'] && j !== index) {
+            // switch the next piece
+            before = newFen.slice(0, j);
+            after = newFen.slice(j + 1);
+            newFen = before + randomPiece + after;
+            console.log("changing to: " + newFen);
+            console.log(getPosition(x1,y1));
+            // Get position of second square
+            square2 = document.getElementById(getPosition(x1,y1));
+                               
+            // exit the loop
+            j = originalFen.length;
           }
-          // exit the loop
-          i = originalFen.length;
+          // Increment the positions
+          if (parseInt(originalFen[j])) {
+            x1 += parseInt(originalFen[j]);
+          } else if (originalFen[j] == '/') {
+            // We need to start a new row
+            x1 = 97;
+            y1--;
+          } else {
+            x1++;
+          }
+
         }
-        // Increment the coordinates
-        if (parseInt(originalFen[i])) {
-          x += parseInt(originalFen[i]);
-        } else if (originalFen[i] == '/') {
-          // We need to start a new row
-          x = 97;
-          y--;
-        } else {
-          x++;
-        }
+        // exit the loop
+        i = originalFen.length;
       }
-    } else {
-      console.log("end");
-      // Start at the end and find the random piece
-      let x = 104; // Unicode decimal for "h"
-      let y = 1; 
-      let lastMove = chess.history({ verbose: true }).pop();
-      // Start at the end
-      for (let i = originalFen.length - 15; i >= 0; i--) {
-        if (originalFen[i] == randomPiece && getPosition(x, y) !== lastMove['to']) {
-          // switch the first piece
-          let before = originalFen.slice(0, i);
-          let after = originalFen.slice(i + 1);
-          let index = i;
-          newFen = before + randomPiece2 + after;
-          console.log(getPosition(x,y));
-          for (let j = 0; j < originalFen.length; j++) {
-            if (originalFen[j] == randomPiece2 && j !== index) {
-              // switch the next piece
-              before = newFen.slice(0, j);
-              after = newFen.slice(j + 1);
-              newFen = before + randomPiece + after;
-              console.log("changing to: " + newFen);
-              // exit the loop
-              j = originalFen.length;
-            }
-          }
-          // exit the loop
-          i = -1;
-        }
-        // Increment the coordinates
-        if (parseInt(originalFen[i])) {
-          x -= parseInt(originalFen[i]);
-        } else if (originalFen[i] == '/') {
-          // We need to start a new row
-          x = 104;
-          y++;
-        } else {
-          x--;
-        }
-
+      // Increment the coordinates
+      if (parseInt(originalFen[i])) {
+        x += parseInt(originalFen[i]);
+      } else if (originalFen[i] == '/') {
+        // We need to start a new row
+        x = 97;
+        y--;
+      } else {
+        x++;
       }
     }
+    // Switch the pieces in the squares
+    console.log(square1);
+    console.log(square2);
+    let switchPiece1 = square2.firstChild;
+    let switchPiece2 = square1.firstChild;
+    square1.replaceChildren();
+    square1.appendChild(switchPiece1)
+    square2.replaceChildren();
+    square2.appendChild(switchPiece2)
+     
     chess.load(newFen);
     console.log(chess.ascii());
     console.log(randomPiece);
